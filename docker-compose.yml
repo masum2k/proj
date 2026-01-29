@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  # 1. REDIS
+  redis:
+    image: redis:alpine
+    container_name: redis-container
+    ports:
+      - "6379:6379"
+    networks:
+      - microservice-network
+
+  # 2. PRODUCT SERVICE (Klasör adı: demo)
+  product-service:
+    build: ./demo       # <-- BURAYI DÜZELTTİK
+    container_name: product-container
+    ports:
+      - "9090:9090"
+    environment:
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
+    depends_on:
+      - redis
+    networks:
+      - microservice-network
+
+  # 3. ORDER SERVICE (Klasör adı: demo2)
+  order-service:
+    build: ./demo2      # <-- BURAYI DÜZELTTİK
+    container_name: order-container
+    ports:
+      - "8080:8080"
+    environment:
+      - GRPC_CLIENT_PRODUCT_SERVICE_ADDRESS=static://product-service:9090
+      - GRPC_CLIENT_PRODUCT_SERVICE_NEGOTIATION_TYPE=plaintext
+    depends_on:
+      - product-service
+    networks:
+      - microservice-network
+
+networks:
+  microservice-network:
+    driver: bridge
