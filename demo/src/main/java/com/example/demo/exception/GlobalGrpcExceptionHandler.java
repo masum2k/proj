@@ -11,8 +11,15 @@ public class GlobalGrpcExceptionHandler {
 
     @GrpcExceptionHandler(EntityNotFoundException.class)
     public StatusException handleNotFound(EntityNotFoundException e) {
-        // Java Hatasını gRPC Status.NOT_FOUND'a çeviriyoruz
         return Status.NOT_FOUND
+                .withDescription(e.getMessage())
+                .asException();
+    }
+
+    @GrpcExceptionHandler(OutOfStockException.class)
+    public StatusException handleOutOfStock(OutOfStockException e) {
+        // FAILED_PRECONDITION: İş mantığına uymayan durumlar için idealdir
+        return Status.FAILED_PRECONDITION
                 .withDescription(e.getMessage())
                 .asException();
     }

@@ -16,30 +16,31 @@ public class GlobalRestExceptionHandler {
 
     @ExceptionHandler(StatusRuntimeException.class)
     public ResponseEntity<Object> handleGrpcException(StatusRuntimeException e) {
-        // gRPC Status kodunu al
         Status.Code grpcCode = e.getStatus().getCode();
         HttpStatus httpStatus;
 
-        // gRPC -> HTTP Çevirimi
         switch (grpcCode) {
             case NOT_FOUND:
-                httpStatus = HttpStatus.NOT_FOUND;
+                httpStatus = HttpStatus.NOT_FOUND; // 404
                 break;
             case INVALID_ARGUMENT:
-                httpStatus = HttpStatus.BAD_REQUEST;
+                httpStatus = HttpStatus.BAD_REQUEST; // 400
+                break;
+            case FAILED_PRECONDITION:
+                httpStatus = HttpStatus.CONFLICT; // 409 - Stok yoksa buraya düşecek
                 break;
             case UNAUTHENTICATED:
-                httpStatus = HttpStatus.UNAUTHORIZED;
+                httpStatus = HttpStatus.UNAUTHORIZED; // 401
                 break;
             default:
-                httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+                httpStatus = HttpStatus.INTERNAL_SERVER_ERROR; // 500
         }
 
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("timestamp", LocalDateTime.now());
         body.put("status", httpStatus.value());
         body.put("error", grpcCode.name());
-        body.put("message", e.getStatus().getDescription()); // gRPC'den gelen mesaj
+        body.put("message", e.getStatus().getDescription());
 
         return new ResponseEntity<>(body, httpStatus);
     }

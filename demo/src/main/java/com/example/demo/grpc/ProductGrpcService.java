@@ -2,9 +2,7 @@ package com.example.demo.grpc;
 
 import com.example.demo.model.ProductEntity;
 import com.example.demo.service.ProductManager;
-import com.example.grpc.common.ProductRequest;
-import com.example.grpc.common.ProductResponse;
-import com.example.grpc.common.ProductServiceGrpc;
+import com.example.grpc.common.*;
 import io.grpc.stub.StreamObserver;
 import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.server.service.GrpcService;
@@ -23,6 +21,20 @@ public class ProductGrpcService extends ProductServiceGrpc.ProductServiceImplBas
                 .setProductId(product.getId())
                 .setName(product.getName())
                 .setPrice(product.getPrice())
+                .setStock(product.getStock())
+                .build();
+
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void reduceStock(ReduceStockRequest request, StreamObserver<ReduceStockResponse> responseObserver) {
+        ProductEntity product = productManager.reduceStock(request.getProductId(), request.getQuantity());
+
+        ReduceStockResponse response = ReduceStockResponse.newBuilder()
+                .setSuccess(true)
+                .setRemainingStock(product.getStock())
                 .build();
 
         responseObserver.onNext(response);

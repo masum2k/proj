@@ -17,4 +17,5 @@ public class ProductEntity {
     private String id;
     private String name;
     private Double price;
+    private Integer stock;
 }
