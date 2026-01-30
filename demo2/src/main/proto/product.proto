@@ -5,10 +5,7 @@ option java_package = "com.example.grpc.common";
 option java_outer_classname = "ProductProto";
 
 service ProductService {
-  // Order Service ürün bilgisi çekmek için kullanır
   rpc GetProductById (ProductRequest) returns (ProductResponse);
-
-  // Order Service sipariş sırasında stok düşmek için kullanır
   rpc ReduceStock (ReduceStockRequest) returns (ReduceStockResponse);
 }
 
@@ -20,7 +17,7 @@ message ProductResponse {
   string productId = 1;
   string name = 2;
   double price = 3;
-  int32 stock = 4; // Stok bilgisini de ekledik
+  int32 stock = 4;
 }
 
 message ReduceStockRequest {
@@ -31,4 +28,6 @@ message ReduceStockRequest {
 message ReduceStockResponse {
   bool success = 1;
   int32 remainingStock = 2;
+  double price = 3;
+  string name = 4;
 }
