@@ -1,36 +1,44 @@
 package com.example.demo.service;
 
+import com.example.demo.model.ProductEntity;
+import com.example.demo.repository.ProductRepository;
+import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-import lombok.RequiredArgsConstructor;
-import jakarta.persistence.EntityNotFoundException;
+import tools.jackson.databind.ObjectMapper;
+
+import java.time.Duration;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ProductManager {
 
-    private final RedisTemplate<String, String> redisTemplate;
+    private final ProductRepository productRepository;
+    private final RedisTemplate<String, Object> redisTemplate;
+    private final ObjectMapper objectMapper;
 
-    public String getProductName(String productId) {
-        // Hata Senaryosu: ID 0 ise hata fırlat (Business Logic Exception)
-        if ("0".equals(productId)) {
-            throw new EntityNotFoundException("Ürün bulunamadı, ID geçersiz: " + productId);
-        }
-
-        // 1. Redis'e bak
+    public ProductEntity getProduct(String productId) {
         String cacheKey = "product:" + productId;
-        String cachedName = redisTemplate.opsForValue().get(cacheKey);
 
-        if (cachedName != null) {
-            System.out.println("Redis'ten geldi: " + productId);
-            return cachedName;
+        try {
+            Object cachedData = redisTemplate.opsForValue().get(cacheKey);
+            if (cachedData != null) {
+                log.info("REDIS HIT: {}", productId);
+                return objectMapper.convertValue(cachedData, ProductEntity.class);
+            }
+        } catch (Exception e) {
+            log.warn("Redis okunamadı, DB ile devam ediliyor: {}", e.getMessage());
         }
 
-        // 2. Redis'te yoksa "DB'den bulmuş gibi" yap ve Cache'e yaz
-        String dbValue = "iPhone 15 Pro (DB)";
-        redisTemplate.opsForValue().set(cacheKey, dbValue);
-        System.out.println("DB'den geldi ve Redis'e yazıldı: " + productId);
+        log.info("REDIS MISS: {}", productId);
+        ProductEntity product = productRepository.findById(productId)
+                .orElseThrow(() -> new EntityNotFoundException("Ürün bulunamadı: " + productId));
 
-        return dbValue;
+        redisTemplate.opsForValue().set(cacheKey, product, Duration.ofMinutes(10));
+
+        return product;
     }
 }

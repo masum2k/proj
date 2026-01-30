@@ -22,15 +22,11 @@ public class OrderController {
 
     @GetMapping("/create/{productId}")
     public ResponseEntity<Map<String, Object>> createOrder(@PathVariable String productId) {
-
-        // 1. Product Service'e gRPC çağrısı yap
-        // Hata varsa burada PATLAR ve GlobalRestExceptionHandler yakalar.
         ProductRequest request = ProductRequest.newBuilder().setProductId(productId).build();
         ProductResponse productResponse = productStub.getProductById(request);
 
-        // 2. Başarılıysa cevap dön
         Map<String, Object> response = new HashMap<>();
-        response.put("message", "Sipariş oluşturuldu");
+        response.put("status", "SUCCESS");
         response.put("productName", productResponse.getName());
         response.put("price", productResponse.getPrice());
 

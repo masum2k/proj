@@ -31,6 +31,7 @@
 		<grpc.version>1.77.1</grpc.version>
 		<protobuf-java.version>4.33.2</protobuf-java.version>
 		<spring-grpc.version>1.0.1</spring-grpc.version>
+        <jackson.version>2.17.0</jackson.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -63,6 +64,11 @@
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
 		</dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-json</artifactId>
+        </dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa-test</artifactId>

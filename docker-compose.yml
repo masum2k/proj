@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   # 1. REDIS
@@ -12,10 +12,11 @@ services:
 
   # 2. PRODUCT SERVICE (Klasör adı: demo)
   product-service:
-    build: ./demo       # <-- BURAYI DÜZELTTİK
+    build: ./demo # <-- BURAYI DÜZELTTİK
     container_name: product-container
     ports:
       - "9090:9090"
+      - "8081:8081"
     environment:
       - SPRING_DATA_REDIS_HOST=redis
       - SPRING_DATA_REDIS_PORT=6379
@@ -26,7 +27,7 @@ services:
 
   # 3. ORDER SERVICE (Klasör adı: demo2)
   order-service:
-    build: ./demo2      # <-- BURAYI DÜZELTTİK
+    build: ./demo2 # <-- BURAYI DÜZELTTİK
     container_name: order-container
     ports:
       - "8080:8080"
@@ -35,6 +36,16 @@ services:
       - GRPC_CLIENT_PRODUCT_SERVICE_NEGOTIATION_TYPE=plaintext
     depends_on:
       - product-service
+    networks:
+      - microservice-network
+
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: redis-commander-container
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    ports:
+      - "8082:8081"
     networks:
       - microservice-network
 
