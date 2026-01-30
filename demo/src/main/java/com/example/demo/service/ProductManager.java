@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.ObjectMapper;
 
 import java.time.Duration;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -35,12 +36,12 @@ public class ProductManager {
             log.warn("Redis okunamadı: {}", e.getMessage());
         }
 
-        //DB
+        //db
         log.info("REDIS MISS: {}", productId);
         ProductEntity product = productRepository.findById(productId)
                 .orElseThrow(() -> new EntityNotFoundException("Ürün bulunamadı: " + productId));
 
-        //Cache
+        //cache
         redisTemplate.opsForValue().set(cacheKey, product, Duration.ofMinutes(10));
 
         return product;
@@ -48,25 +49,26 @@ public class ProductManager {
 
     @Transactional
     public ProductEntity reduceStock(String productId, int quantity) {
+
+        //db
         ProductEntity product = productRepository.findById(productId)
                 .orElseThrow(() -> new EntityNotFoundException("Ürün bulunamadı: " + productId));
-
+        //business rule
         if (product.getStock() < quantity) {
             throw new OutOfStockException("Yetersiz stok! Mevcut: " + product.getStock());
         }
-
+        //reduce stock
         product.setStock(product.getStock() - quantity);
+        //db
         ProductEntity updatedProduct = productRepository.save(product);
-
-        // Cache'i temizle
+        //redis cache
         redisTemplate.delete("product:" + productId);
 
         log.info("Stok düşüldü. Ürün: {}, Adet: {}, Yeni Stok: {}", productId, quantity, updatedProduct.getStock());
         return updatedProduct;
     }
 
-    // Admin için ürün ekleme
-    public ProductEntity createProduct(ProductEntity product) {
-        return productRepository.save(product);
+    public List<ProductEntity> getAllProducts() {
+        return productRepository.findAll();
     }
 }
