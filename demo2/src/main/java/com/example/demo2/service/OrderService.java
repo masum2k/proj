@@ -29,6 +29,21 @@ public class OrderService {
         this.orderRepository = orderRepository;
     }
 
+    public ProductDto getProductDetails(String productId) {
+        ProductRequest request = ProductRequest.newBuilder()
+                .setProductId(productId)
+                .build();
+
+        ProductResponse response = productStub.getProductById(request);
+
+        return new ProductDto(
+                response.getProductId(),
+                response.getName(),
+                response.getPrice(),
+                response.getStock()
+        );
+    }
+
     @Transactional
     public OrderResponse createOrder(String productId, int quantity) {
         ReduceStockRequest stockRequest = ReduceStockRequest.newBuilder()

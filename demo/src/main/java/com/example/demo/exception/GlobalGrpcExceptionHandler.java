@@ -18,7 +18,6 @@ public class GlobalGrpcExceptionHandler {
 
     @GrpcExceptionHandler(OutOfStockException.class)
     public StatusException handleOutOfStock(OutOfStockException e) {
-        // FAILED_PRECONDITION: İş mantığına uymayan durumlar için idealdir
         return Status.FAILED_PRECONDITION
                 .withDescription(e.getMessage())
                 .asException();

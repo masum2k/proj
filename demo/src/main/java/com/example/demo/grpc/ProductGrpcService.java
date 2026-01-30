@@ -37,6 +37,8 @@ public class ProductGrpcService extends ProductServiceGrpc.ProductServiceImplBas
         ReduceStockResponse response = ReduceStockResponse.newBuilder()
                 .setSuccess(true)
                 .setRemainingStock(product.getStock())
+                .setPrice(product.getPrice())
+                .setName(product.getName())
                 .build();
         responseObserver.onNext(response);
         responseObserver.onCompleted();

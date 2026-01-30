@@ -18,6 +18,11 @@ public class OrderController {
         this.orderService = orderService;
     }
 
+    @GetMapping("/products/{id}")
+    public ResponseEntity<ProductDto> getProductById(@PathVariable String id) {
+        return ResponseEntity.ok(orderService.getProductDetails(id));
+    }
+
     @PostMapping("/create")
     public ResponseEntity<OrderResponse> createOrder(@RequestParam String productId, @RequestParam int quantity) {
         return ResponseEntity.ok(orderService.createOrder(productId, quantity));
