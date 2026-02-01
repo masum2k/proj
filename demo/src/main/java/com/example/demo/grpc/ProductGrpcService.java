@@ -45,13 +45,17 @@ public class ProductGrpcService extends ProductServiceGrpc.ProductServiceImplBas
     }
 
     @Override
-    public void getAllProducts(Empty request, StreamObserver<ProductResponse> responseObserver) throws InterruptedException {
+    public void getAllProducts(Empty request, StreamObserver<ProductResponse> responseObserver){
         log.info("GetAllProducts çağrısı alındı, stream başlıyor...");
 
         List<ProductEntity> products = productManager.getAllProducts();
 
         for (ProductEntity product : products) {
-            Thread.sleep(1000);
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
 
             ProductResponse response = ProductResponse.newBuilder()
                     .setProductId(product.getId())

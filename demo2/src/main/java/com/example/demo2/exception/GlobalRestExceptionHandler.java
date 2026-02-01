@@ -27,7 +27,7 @@ public class GlobalRestExceptionHandler {
                 httpStatus = HttpStatus.BAD_REQUEST; // 400
                 break;
             case FAILED_PRECONDITION:
-                httpStatus = HttpStatus.CONFLICT; // 409 - Stok yoksa buraya düşecek
+                httpStatus = HttpStatus.CONFLICT; // 409 - Stok yoksa
                 break;
             case UNAUTHENTICATED:
                 httpStatus = HttpStatus.UNAUTHORIZED; // 401
